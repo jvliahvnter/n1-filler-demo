@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N1 Filler Demo</title>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body style="font-family: system-ui; margin: 2rem;">
+  <h1>PDF Form Filler (Simple Demo)</h1>
+
+<p>Answer these simple questions and download your filled out PDF:</p>
+
+  <label for="tenantName">Tenant Name:</label>
+    <input id="tenantName" type="text" placeholder="John Smith" />
+  <br><br>
+
+  <label for="tenantAddress">Address:</label>
+    <textarea id="tenantAddress" rows="3" placeholder="123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
+  <br><br>
+
+  <label for="tenantRent">New Monthly Rent:</label>
+    $<input id="tenantRent" type="text" placeholder="1200.00" />
+  <br><br>
+
+  <label for="dateEffective">Date the new monthly rent starts:</label>
+    <input id="dateEffective" type="date" />
+  <br><br>
+
+<fieldset style="margin-top:1.5rem;">
+  <legend>Payment Frequency:</legend>
+
+  <label>
+    <input type="radio" name="rentFrequency" value="Monthly" checked>
+    Monthly
+  </label><br>
+
+  <label>
+    <input type="radio" name="rentFrequency" value="Weekly">
+    Weekly
+  </label><br>
+
+  <label>
+    <input type="radio" name="rentFrequency" value="Other">
+    Other (specify):
+  </label>
+  <input id="rentFrequencyOther" type="text" placeholder="e.g., biweekly" style="margin-left:5px;" disabled>
+</fieldset>
+
+
+
+
+
+  <button id="fillBtn">Download Filled PDF</button>
+  <button id="clearBtn" type="button">Clear All Fields</button>
+
+
+
+
+
+
+
+
+
+  <script>
+    const PDF_URL = "test_pdf_form.pdf"; // keep the test PDF in the same folder
+
+
+// --- Handle enabling/disabling the "Other" text field in Rent Frequency---
+const radios = document.querySelectorAll('input[name="rentFrequency"]');
+const otherInput = document.getElementById("rentFrequencyOther");
+
+radios.forEach(radio => {
+  radio.addEventListener("change", () => {
+    if (radio.value === "Other" && radio.checked) {
+      otherInput.disabled = false;
+      otherInput.focus();
+    } else {
+      otherInput.disabled = true;
+      otherInput.value = "";
+    }
+  });
+});
+
+
+    document.getElementById("fillBtn").addEventListener("click", async () => {
+      
+      const name = document.getElementById("tenantName").value || "—";
+      const address = document.getElementById("tenantAddress").value || "—";
+      const rent = document.getElementById("tenantRent").value || "—";      
+
+      const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
+      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+      const form = pdfDoc.getForm();
+
+
+let rawDate = document.getElementById("dateEffective").value; // yyyy-mm-dd
+let date = "";
+if (rawDate) {
+  const [year, month, day] = rawDate.split("-");
+  date = `${day} ${month} ${year}`; // dd mm yyyy
+}
+
+
+
+
+// --- Rent Frequency ---
+let rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
+
+// Mark the correct radio button in the PDF
+const rentFreqGroup = form.getRadioGroup("rent_frequency");
+rentFreqGroup.select(rentFrequency);
+
+// If "Other" is selected, fill the extra text field too
+if (rentFrequency === "Other") {
+  const otherText = document.getElementById("rentFrequencyOther").value || "";
+  form.getTextField("rent_frequency_other").setText(otherText);
+}
+
+
+
+
+
+      form.getTextField("test_tenant_name").setText(name);
+      form.getTextField("test_tenant_address").setText(address);
+      form.getTextField("test_tenant_rent").setText(rent);
+      form.getTextField("date_effective").setText(date);
+
+
+      const filledBytes = await pdfDoc.save();
+      const blob = new Blob([filledBytes], { type: "application/pdf" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "n1_filled.pdf";
+      a.click();
+    });
+  </script>
+
+
+  <script>
+// --- Simple local save/restore system ---
+
+// list of form element IDs to persist
+const fieldIDs = ["tenantName", "tenantAddress", "tenantRent", "dateEffective"];
+
+// restore saved values when page loads
+window.addEventListener("load", () => {
+  fieldIDs.forEach(id => {
+    const el = document.getElementById(id);
+    const saved = localStorage.getItem(id);
+    if (el && saved !== null) el.value = saved;
+  });
+});
+
+// save whenever a field changes
+fieldIDs.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", () => {
+    localStorage.setItem(id, el.value);
+  });
+});
+
+// clear button: wipe values + localStorage
+document.getElementById("clearBtn").addEventListener("click", () => {
+  const confirmClear = confirm("Are you sure you want to clear all fields and delete saved data?");
+  if (!confirmClear) return;
+
+  fieldIDs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+    localStorage.removeItem(id);
+  });
+  alert("Clearing all fields! :)");
+});
+</script>
+
+
+</body>
+</html>
