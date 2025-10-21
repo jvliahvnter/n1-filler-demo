@@ -9,7 +9,7 @@
 <body style="font-family: system-ui; margin: 2rem;">
   <h1>PDF Form Filler (Simple Demo)</h1>
 
-<p>Answer these simple questions and download your filled out PDF:</p>
+  <p>Answer these simple questions and download your filled out PDF:</p>
 
   <label for="tenantName">Tenant Name:</label>
     <input id="tenantName" type="text" placeholder="John Smith" />
@@ -79,9 +79,16 @@
 
 
 
+
+
+
+
+  
+
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const PDF_URL = "test_pdf_form.pdf";
+  const PDF_URL = "./test_pdf_form.pdf";
 
   const radios = document.querySelectorAll('input[name="rentFrequency"]');
   const otherInput = document.getElementById("rentFrequencyOther");
