@@ -48,6 +48,23 @@
 </fieldset>
 
 
+<fieldset style="margin-top:1.5rem;">
+  <legend>Rent Increase compared to guidelines:</legend>
+
+  <label>
+    <input type="radio" name="rentGuidelines" value="less_or_equal" checked>
+    Less than or equal to Guidelines
+  </label><br>
+
+  <label>
+    <input type="radio" name="rentGuidelines" value="more_than">
+    More than the Guidelines
+  </label>
+    <label><input id="rentApproved" type="radio" name="approvedOrApplied" value="rentApproved" disabled>Approved.</label>
+    <label><input id="rentApplied" type="radio" name="approvedOrApplied" value="rentApplied" disabled>Applied for.</label>
+
+</fieldset>
+
 
 
 
@@ -62,97 +79,155 @@
 
 
 
-  <script>
-    const PDF_URL = "test_pdf_form.pdf"; // keep the test PDF in the same folder
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const PDF_URL = "test_pdf_form.pdf";
 
+  const radios = document.querySelectorAll('input[name="rentFrequency"]');
+  const otherInput = document.getElementById("rentFrequencyOther");
 
-// --- Handle enabling/disabling the "Other" text field in Rent Frequency---
-const radios = document.querySelectorAll('input[name="rentFrequency"]');
-const otherInput = document.getElementById("rentFrequencyOther");
+const rentGuidelineRadios = document.querySelectorAll('input[name="rentGuidelines"]');
+const approvedRadios = document.querySelectorAll('input[name="approvedOrApplied"]');
 
-radios.forEach(radio => {
+rentGuidelineRadios.forEach(radio => {
   radio.addEventListener("change", () => {
-    if (radio.value === "Other" && radio.checked) {
-      otherInput.disabled = false;
-      otherInput.focus();
+    if (radio.value === "moreThan" && radio.checked) {
+      approvedRadios.forEach(r => (r.disabled = false));
     } else {
-      otherInput.disabled = true;
-      otherInput.value = "";
+      approvedRadios.forEach(r => {
+        r.disabled = true;
+        r.checked = false;
+      });
     }
   });
 });
 
 
-    document.getElementById("fillBtn").addEventListener("click", async () => {
-      
-      const name = document.getElementById("tenantName").value || "—";
-      const address = document.getElementById("tenantAddress").value || "—";
-      const rent = document.getElementById("tenantRent").value || "—";      
-
-      const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
-      const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const form = pdfDoc.getForm();
-
-
-let rawDate = document.getElementById("dateEffective").value; // yyyy-mm-dd
-let date = "";
-if (rawDate) {
-  const [year, month, day] = rawDate.split("-");
-  date = `${day} ${month} ${year}`; // dd mm yyyy
-}
-
-
-
-
-// --- Rent Frequency ---
-let rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
-
-// Mark the correct radio button in the PDF
-const rentFreqGroup = form.getRadioGroup("rent_frequency");
-rentFreqGroup.select(rentFrequency);
-
-// If "Other" is selected, fill the extra text field too
-if (rentFrequency === "Other") {
-  const otherText = document.getElementById("rentFrequencyOther").value || "";
-  form.getTextField("rent_frequency_other").setText(otherText);
-}
-
-
-
-
-
-      form.getTextField("test_tenant_name").setText(name);
-      form.getTextField("test_tenant_address").setText(address);
-      form.getTextField("test_tenant_rent").setText(rent);
-      form.getTextField("date_effective").setText(date);
-
-
-      const filledBytes = await pdfDoc.save();
-      const blob = new Blob([filledBytes], { type: "application/pdf" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "n1_filled.pdf";
-      a.click();
+  // Handle enabling/disabling the "Other" text field
+  radios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (radio.value === "Other" && radio.checked) {
+        otherInput.disabled = false;
+        otherInput.focus();
+      } else {
+        otherInput.disabled = true;
+        otherInput.value = "";
+      }
     });
-  </script>
+  });
 
 
-  <script>
-// --- Simple local save/restore system ---
+// --- Handle "more than guidelines" sub-options ---
+const guidelineRadios = document.querySelectorAll('input[name="rentGuidelines"]');
+const subRadios = document.querySelectorAll('input[name="approvedOrApplied"]');
 
-// list of form element IDs to persist
+guidelineRadios.forEach(radio => {
+  radio.addEventListener("change", () => {
+    const isMoreThan = radio.value === "more_than" && radio.checked;
+    subRadios.forEach(sub => {
+      sub.disabled = !isMoreThan;
+      if (!isMoreThan) sub.checked = false;
+    });
+  });
+});
+
+
+
+
+
+  document.getElementById("fillBtn").addEventListener("click", async () => {
+    const name = document.getElementById("tenantName").value || "—";
+    const address = document.getElementById("tenantAddress").value || "—";
+    const rent = document.getElementById("tenantRent").value || "—";
+
+    const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+    const form = pdfDoc.getForm();
+
+    const rawDate = document.getElementById("dateEffective").value;
+    const date = rawDate
+      ? (() => { const [y, m, d] = rawDate.split("-"); return `${d} ${m} ${y}`; })()
+      : "";
+
+    const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked').value;
+    const rentGuideGroup = form.getRadioGroup("rent_guidelines");
+    rentGuideGroup.select(rentGuidelines);
+
+    const rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
+    const rentFreqGroup = form.getRadioGroup("rent_frequency");
+    rentFreqGroup.select(rentFrequency);
+
+    if (rentFrequency === "Other") {
+      form.getTextField("rent_frequency_other").setText(otherInput.value || "");
+    }
+
+    form.getTextField("test_tenant_name").setText(name);
+    form.getTextField("test_tenant_address").setText(address);
+    form.getTextField("test_tenant_rent").setText(rent);
+    form.getTextField("date_effective").setText(date);
+
+    const filledBytes = await pdfDoc.save();
+    const blob = new Blob([filledBytes], { type: "application/pdf" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "n1_filled.pdf";
+    a.click();
+  });
+});
+
+
+// --- Radio groups ---
+const rentFreq = document.querySelector('input[name="rentFrequency"]:checked')?.value;
+if (rentFreq) form.getRadioGroup("rent_frequency")?.select(rentFreq);
+
+const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked')?.value;
+if (rentGuidelines) form.getRadioGroup("rent_guidelines")?.select(rentGuidelines);
+
+// --- Approved/Applied (only if more_than is selected) ---
+const approvedApplied = document.querySelector('input[name="approvedOrApplied"]:checked')?.value;
+if (approvedApplied) form.getRadioGroup("approved_or_applied")?.select(approvedApplied);
+
+
+
+</script>
+
+
+
+ <script>
+// --- Simple local save/restore system (fixed and complete) ---
+
 const fieldIDs = ["tenantName", "tenantAddress", "tenantRent", "dateEffective"];
 
 // restore saved values when page loads
 window.addEventListener("load", () => {
+  // Restore text fields
   fieldIDs.forEach(id => {
     const el = document.getElementById(id);
     const saved = localStorage.getItem(id);
     if (el && saved !== null) el.value = saved;
   });
+
+  // Restore radio selection
+  const savedRadio = localStorage.getItem("rentFrequency");
+  if (savedRadio) {
+    const radioToCheck = document.querySelector(`input[name="rentFrequency"][value="${savedRadio}"]`);
+    if (radioToCheck) {
+      radioToCheck.checked = true;
+      if (savedRadio === "Other") {
+        document.getElementById("rentFrequencyOther").disabled = false;
+      }
+    }
+  }
+
+  // Restore "Other" text if applicable
+  const savedOther = localStorage.getItem("rentFrequencyOther");
+  if (savedOther !== null) {
+    const otherInput = document.getElementById("rentFrequencyOther");
+    otherInput.value = savedOther;
+  }
 });
 
-// save whenever a field changes
+// Save whenever a text field changes
 fieldIDs.forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
@@ -161,19 +236,57 @@ fieldIDs.forEach(id => {
   });
 });
 
-// clear button: wipe values + localStorage
+// Save radio selection
+const radios = document.querySelectorAll('input[name="rentFrequency"]');
+radios.forEach(radio => {
+  radio.addEventListener("change", () => {
+    localStorage.setItem("rentFrequency", radio.value);
+
+    // Handle "Other" enabling
+    const otherInput = document.getElementById("rentFrequencyOther");
+    if (radio.value === "Other" && radio.checked) {
+      otherInput.disabled = false;
+    } else {
+      otherInput.disabled = true;
+      otherInput.value = "";
+      localStorage.removeItem("rentFrequencyOther");
+    }
+  });
+});
+
+
+
+// Save "Other" input
+document.getElementById("rentFrequencyOther").addEventListener("input", e => {
+  localStorage.setItem("rentFrequencyOther", e.target.value);
+});
+
+// Clear button: wipe everything clean
 document.getElementById("clearBtn").addEventListener("click", () => {
   const confirmClear = confirm("Are you sure you want to clear all fields and delete saved data?");
   if (!confirmClear) return;
 
+  // Clear text fields
   fieldIDs.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
     localStorage.removeItem(id);
   });
+
+  // Clear radio selections
+  radios.forEach(r => (r.checked = false));
+  localStorage.removeItem("rentFrequency");
+
+  // Clear "Other"
+  const otherInput = document.getElementById("rentFrequencyOther");
+  otherInput.value = "";
+  otherInput.disabled = true;
+  localStorage.removeItem("rentFrequencyOther");
+
   alert("Clearing all fields! :)");
 });
 </script>
+
 
 
 </body>
