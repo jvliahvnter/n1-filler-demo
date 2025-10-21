@@ -98,7 +98,7 @@ const approvedRadios = document.querySelectorAll('input[name="approvedOrApplied"
 
 rentGuidelineRadios.forEach(radio => {
   radio.addEventListener("change", () => {
-    if (radio.value === "moreThan" && radio.checked) {
+    if (radio.value === "more_than" && radio.checked) {
       approvedRadios.forEach(r => (r.disabled = false));
     } else {
       approvedRadios.forEach(r => {
