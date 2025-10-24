@@ -199,17 +199,6 @@ guidelineRadios.forEach(radio => {
 });
 
 
-// --- Radio groups ---
-const rentFreq = document.querySelector('input[name="rentFrequency"]:checked')?.value;
-if (rentFreq) form.getRadioGroup("rent_frequency")?.select(rentFreq);
-
-const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked')?.value;
-if (rentGuidelines) form.getRadioGroup("rent_guidelines")?.select(rentGuidelines);
-
-// --- Approved/Applied (only if more_than is selected) ---
-const approvedApplied = document.querySelector('input[name="approvedOrApplied"]:checked')?.value;
-if (approvedApplied) form.getRadioGroup("approved_or_applied")?.select(approvedApplied);
-
 
 
 </script>
