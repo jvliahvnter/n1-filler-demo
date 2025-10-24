@@ -9,7 +9,8 @@
 <body style="font-family: system-ui; margin: 2rem;">
   <h1>Ontario N1 Form Filler (Simple Demo)</h1>
 
-  <h2>Time to increase the rent on your property? Answer these simple questions and download your filled out N1 Form as a handy PDF:</h2>
+  <h2>Time to increase the rent on your property? </h2> 
+    <p>Answer these simple questions and download your filled out N1 Form as a handy PDF:</p>
 
   <label for="tenantName">What is the name(s) of the landlord(s) of this property, as named on the lease?</label>
     <input id="tenantName" type="text" placeholder="John Smith" />
@@ -170,13 +171,13 @@ guidelineRadios.forEach(radio => {
     const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked').value;
     const rentGuideGroup = form.getRadioGroup("rent_guidelines");
     rentGuideGroup.select(rentGuidelines);
-    const rentApprovedApplied = form.getRadioGroup("approved_or_applied");
-    rentApprovedApplied.select(approvedOrApplied);
+    const approvedOrApplied = document.querySelector('input[name="approvedOrApplied"]:checked')?.value;
 
-    if (rentGuidelines === "more_than") {
-      form.getRadioGroup("approved_or_applied");
-      rentApprovedApplied.select(approvedOrAppled);
+    if (rentGuidelines === "more_than" && approvedOrApplied) {
+      const rentApprovedApplied = form.getRadioGroup("approved_or_applied");
+      rentApprovedApplied.select(approvedOrApplied);
     }
+
 
 
     if (rentFrequency === "Other") {
