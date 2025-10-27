@@ -11,7 +11,7 @@
 
   <h2>Time to increase the rent on your property? </h2> 
     <p>Answer these simple questions to download your filled out <strong>N1 Form</strong> as a PDF that's ready to send to your tenant:</p>
-    <p>2.</p>
+    <p>..3..</p>
   
     <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
     <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
@@ -181,7 +181,7 @@ guidelineRadios.forEach(radio => {
       ? (() => { const [y, m, d] = rawDate.split("-"); return `${d} ${m} ${y}`; })()
       : "";
 
-    let rentFrequency = "";
+
     try {
     const rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
     const rentFreqGroup = form.getRadioGroup("rent_frequency");
@@ -205,9 +205,6 @@ guidelineRadios.forEach(radio => {
    }
 
 
-    if (rentFrequency === "Other") {
-      form.getTextField("rent_frequency_other").setText(otherInput.value || "");
-    }
 
       safeSet("n1_landlord_name_and_address", addressLandlord);
       safeSet("n1_tenant_name_and_address", addressTenant);
@@ -215,9 +212,8 @@ guidelineRadios.forEach(radio => {
       safeSet("test_tenant_rent", rent);
       safeSet("n1_new_rent_effective_date", date);
 
-          const rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
       if (rentFrequency === "Other") {
-        safeSet("rent_frequency_other", document.getElementById("rentFrequencyOther").value || "");
+      safeSet("rent_frequency_other", document.getElementById("rentFrequencyOther").value || "");
       }
     
     const filledBytes = await pdfDoc.save();
