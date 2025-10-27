@@ -10,16 +10,22 @@
   <h1>Ontario N1 Form Filler (Simple Demo)</h1>
 
   <h2>Time to increase the rent on your property? </h2> 
-    <p>Answer these simple questions and download your filled out N1 Form as a handy PDF:</p>
+    <p>Answer these simple questions to download your filled out <em>N1 Form</em> as a PDF that's ready to send to your tenant:</p>
 
-  <label for="tenantName">What is the name(s) of the landlord(s) of this property, as named on the lease?</label>
-    <input id="tenantName" type="text" placeholder="John Smith" />
-  <br><br>
+  
+    <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
+    <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
+    <br><br>
+  
+    <label for="landlordAddress">What is the name(s) and address(es) of the landlord(s) of this property, as named on the lease?</label>
+    <textarea id="landlordAddress" rows="3" placeholder="John Black&#10;456 Elm Rd.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
+    <br><br>
+  
+    <label for="unitAddress">What is the address this property, as named on the lease? <i>*Include the correct unit number.</i></label>
+    <textarea id="unitAddress" rows="3" placeholder="4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
+    <br><br>
 
-  <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
-    <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
-  <br><br>
-
+  
   <label for="tenantRent">New Monthly Rent:</label>
     $<input id="tenantRent" type="text" placeholder="1200.00" />
   <br><br>
@@ -96,7 +102,7 @@
 // --- JAVASCRIPT STARTS HERE ---
 
   document.addEventListener("DOMContentLoaded", () => {
-  const PDF_URL = "./test_pdf_form.pdf";
+  const PDF_URL = "./n1_form_ltbreeze.pdf";
 
   const radios = document.querySelectorAll('input[name="rentFrequency"]');
   const otherInput = document.getElementById("rentFrequencyOther");
@@ -151,8 +157,9 @@ guidelineRadios.forEach(radio => {
 
 
   document.getElementById("fillBtn").addEventListener("click", async () => {
-    const name = document.getElementById("tenantName").value || "—";
-    const address = document.getElementById("tenantAddress").value || "—";
+    const addressLandlord = document.getElementById("landlordAddress").value || "—";
+    const addressTenant = document.getElementById("tenantAddress").value || "—";
+    const addressUnit = document.getElementById("unitAddress").value || "—";
     const rent = document.getElementById("tenantRent").value || "—";
 
     const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
@@ -185,10 +192,11 @@ guidelineRadios.forEach(radio => {
       form.getTextField("rent_frequency_other").setText(otherInput.value || "");
     }
 
-    form.getTextField("test_tenant_name").setText(name);
-    form.getTextField("n1_tenant_name_and_address").setText(address);
+    form.getTextField("n1_landlord_name_and_address").setText(addressLandlord);
+    form.getTextField("n1_tenant_name_and_address").setText(addressTenant);
+    form.getTextField("n1_rental_unit_address").setText(addressUnit);
     form.getTextField("test_tenant_rent").setText(rent);
-    form.getTextField("date_effective").setText(date);
+    form.getTextField("n1_new_rent_effective_date").setText(date);
 
     const filledBytes = await pdfDoc.save();
     const blob = new Blob([filledBytes], { type: "application/pdf" });
@@ -209,7 +217,7 @@ guidelineRadios.forEach(radio => {
  <script>
 // --- Simple local save/restore system (fixed and complete) ---
 
-const fieldIDs = ["tenantName", "tenantAddress", "tenantRent", "dateEffective"];
+const fieldIDs = ["landlordAddress", "tenantAddress", "unitAddress", "tenantRent", "dateEffective"];
 
 // restore saved values when page loads
 window.addEventListener("load", () => {
