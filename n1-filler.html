@@ -11,7 +11,7 @@
 
   <h2>Time to increase the rent on your property? </h2> 
     <p>Answer these simple questions to download your filled out <em>N1 Form</em> as a PDF that's ready to send to your tenant:</p>
-    <p>1.112</p>
+    <p>1.1123</p>
   
     <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
     <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
@@ -135,7 +135,7 @@ rentGuidelineRadios.forEach(radio => {
   // Handle enabling/disabling the "Other" text field
   radios.forEach(radio => {
     radio.addEventListener("change", () => {
-      if (radio.value === "Other" && radio.checked) {
+      if (radio.value === "n1_rent_per_other" && radio.checked) {
         otherInput.disabled = false;
         otherInput.focus();
       } else {
@@ -198,7 +198,7 @@ guidelineRadios.forEach(radio => {
 
 
 
-  if (rentFrequency === "Other") {
+  if (rentFrequency === "n1_rent_per_other") {
     form.getTextField("n1_per_other_detail").setText(otherInput.value || "");
   }
 
@@ -246,7 +246,7 @@ window.addEventListener("load", () => {
     const radioToCheck = document.querySelector(`input[name="rentFrequency"][value="${savedRadio}"]`);
     if (radioToCheck) {
       radioToCheck.checked = true;
-      if (savedRadio === "Other") {
+      if (savedRadio === "n1_rent_per_other") {
         document.getElementById("rentFrequencyOther").disabled = false;
       }
     }
@@ -277,7 +277,7 @@ radios.forEach(radio => {
 
     // Handle "Other" enabling
     const otherInput = document.getElementById("rentFrequencyOther");
-    if (radio.value === "Other" && radio.checked) {
+    if (radio.value === "n1_rent_per_other" && radio.checked) {
       otherInput.disabled = false;
     } else {
       otherInput.disabled = true;
