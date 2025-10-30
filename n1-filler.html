@@ -10,8 +10,8 @@
   <h1>Ontario N1 Form Filler (Simple Demo)</h1>
 
   <h2>Time to increase the rent on your property? </h2> 
-    <p>Answer these simple questions to download your filled out <strong>N1 Form</strong> as a PDF that's ready to send to your tenant:</p>
-    <p>..3..</p>
+    <p>Answer these simple questions to download your filled out <em>N1 Form</em> as a PDF that's ready to send to your tenant:</p>
+    <p>1.</p>
   
     <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
     <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
@@ -157,7 +157,6 @@ guidelineRadios.forEach(radio => {
 
 
   document.getElementById("fillBtn").addEventListener("click", async () => {
-  try {
     const addressLandlord = document.getElementById("landlordAddress").value || "—";
     const addressTenant = document.getElementById("tenantAddress").value || "—";
     const addressUnit = document.getElementById("unitAddress").value || "—";
@@ -167,76 +166,50 @@ guidelineRadios.forEach(radio => {
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
     const form = pdfDoc.getForm();
 
-      const safeSet = (fieldName, value) => {
-        try {
-          form.getTextField(fieldName).setText(value || "");
-        } catch (e) {
-          console.warn(`Skipping missing field: ${fieldName}`);
-        }
-      };
-
-    
     const rawDate = document.getElementById("dateEffective").value;
     const date = rawDate
       ? (() => { const [y, m, d] = rawDate.split("-"); return `${d} ${m} ${y}`; })()
       : "";
 
-
-    try {
     const rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
     const rentFreqGroup = form.getRadioGroup("rent_frequency");
     rentFreqGroup.select(rentFrequency);
-    } catch (e) {
-      console.warn("Rent frequency group missing or failed to select");
-    }
+
     
-   try {
-     const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked').value;
+    const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked').value;
     const rentGuideGroup = form.getRadioGroup("rent_guidelines");
     rentGuideGroup.select(rentGuidelines);
-    
-     const approvedOrApplied = document.querySelector('input[name="approvedOrApplied"]:checked')?.value;
+    const approvedOrApplied = document.querySelector('input[name="approvedOrApplied"]:checked')?.value;
+
     if (rentGuidelines === "more_than" && approvedOrApplied) {
       const rentApprovedApplied = form.getRadioGroup("approved_or_applied");
       rentApprovedApplied.select(approvedOrApplied);
     }
-   } catch (e) {
-     console.warn("Guideline or approval group missing");
-   }
 
 
 
-      safeSet("n1_landlord_name_and_address", addressLandlord);
-      safeSet("n1_tenant_name_and_address", addressTenant);
-      safeSet("n1_rental_unit_address", addressUnit);
-      safeSet("test_tenant_rent", rent);
-      safeSet("n1_new_rent_effective_date", date);
+    if (rentFrequency === "Other") {
+      form.getTextField("rent_frequency_other").setText(otherInput.value || "");
+    }
 
-      if (rentFrequency === "Other") {
-      safeSet("rent_frequency_other", document.getElementById("rentFrequencyOther").value || "");
-      }
-    
+    form.getTextField("n1_landlord_name_and_address").setText(addressLandlord);
+    form.getTextField("n1_tenant_name_and_address").setText(addressTenant);
+    form.getTextField("n1_rental_unit_address").setText(addressUnit);
+    form.getTextField("test_tenant_rent").setText(rent);
+    form.getTextField("n1_new_rent_effective_date").setText(date);
+
     const filledBytes = await pdfDoc.save();
     const blob = new Blob([filledBytes], { type: "application/pdf" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "n1_filled.pdf";
     a.click();
-    } catch (err) {
-      console.error("Unexpected error during fill:", err);
-
-      const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
-      const blob = new Blob([existingPdfBytes], { type: "application/pdf" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "n1_partial_or_blank.pdf";
-      a.click();
-    }
+  });
 });
 
 
 
-  });
+
 </script>
 
 
