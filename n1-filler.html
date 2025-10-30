@@ -11,7 +11,7 @@
 
   <h2>Time to increase the rent on your property? </h2> 
     <p>Answer these simple questions to download your filled out <em>N1 Form</em> as a PDF that's ready to send to your tenant:</p>
-    <p>1. :)</p>
+    <p>1. :)!</p>
   
     <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
     <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
@@ -77,12 +77,22 @@
   </label>
     <label><input id="rentApproved" type="radio" name="approvedOrApplied" value="n1_has_been_approved" disabled>Approved.</label>
     <label><input id="rentApplied" type="radio" name="approvedOrApplied" value="n1_must_be_approved" disabled>Applied for.</label>
-
-
 </fieldset>
 
+<fieldset style="margin-top:1.5rem;">
+  <legend>Who is filling out this form?<br>
+    (If you're a representative, we'll have a few more questions for you.)</legend>
 
+  <label>
+    <input type="radio" name="personFilling" value="n1_landlord">
+    Landlord
+  </label><br>
 
+  <label>
+    <input type="radio" name="personFilling" value="n1_representative">
+    Representative
+  </label>
+</fieldset>
 
   <button id="fillBtn">Download Filled PDF</button>
   <button id="clearBtn" type="button">Clear All Fields</button>
@@ -171,6 +181,7 @@ guidelineRadios.forEach(radio => {
     const rent = document.getElementById("tenantRent").value || "—";
     const dollarsIncrease = document.getElementById("increaseDollars").value || "—";
     const percentIncrease = document.getElementById("increasePercent").value || "—";
+    const person = document.querySelectorAll('input[name="personFilling"]');
 
     const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
@@ -196,7 +207,9 @@ guidelineRadios.forEach(radio => {
       rentApprovedApplied.select(approvedOrApplied);
     }
 
-
+    const personFilling = document.querySelector('input[name="personFilling"]:checked').value;
+    const personFillingGroup = form.getRadioGroup("n1_landlord_or_rep");
+    personFillingGroup.select(personFilling);
 
   if (rentFrequency === "n1_rent_per_other") {
     form.getTextField("n1_per_other_detail_1").setText(otherInput.value || "");
