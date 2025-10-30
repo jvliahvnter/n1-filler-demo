@@ -26,14 +26,22 @@
     <br><br>
 
   
-  <label for="tenantRent">New Monthly Rent:</label>
-    $<input id="tenantRent" type="text" placeholder="1200.00" />
-  <br><br>
+    <label for="tenantRent">New Monthly Rent:</label>
+      $<input id="tenantRent" type="text" placeholder="1200.00" />
+    <br><br>
 
-  <label for="dateEffective">Date the new monthly rent starts:</label>
-    <input id="dateEffective" type="date" />
-  <br><br>
+    <label for="dateEffective">Date the new monthly rent starts:</label>
+      <input id="dateEffective" type="date" />
+    <br><br>
 
+    <label for="increaseDollars">Increase in dollars:</label>
+      $<input id="increaseDollars" type="text" placeholder="29.00" />
+    <br><br>
+
+      <label for="increasePercent">Increase as percent:</label>
+      <input id="increasePercent" type="text" placeholder="2.5" />%
+    <br><br>
+  
 <fieldset style="margin-top:1.5rem;">
   <legend>Payment Frequency:</legend>
 
@@ -161,6 +169,8 @@ guidelineRadios.forEach(radio => {
     const addressTenant = document.getElementById("tenantAddress").value || "—";
     const addressUnit = document.getElementById("unitAddress").value || "—";
     const rent = document.getElementById("tenantRent").value || "—";
+    const dollarsIncrease = document.getElementById("increaseDollars").value || "—";
+    const percentIncrease = document.getElementById("increasePercent").value || "—";
 
     const existingPdfBytes = await fetch(PDF_URL).then(r => r.arrayBuffer());
     const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
@@ -195,8 +205,10 @@ guidelineRadios.forEach(radio => {
     form.getTextField("n1_landlord_name_and_address").setText(addressLandlord);
     form.getTextField("n1_tenant_name_and_address").setText(addressTenant);
     form.getTextField("n1_rental_unit_address").setText(addressUnit);
-    form.getTextField("test_tenant_rent").setText(rent);
+    form.getTextField("n1_new_rent_amount").setText(rent);
     form.getTextField("n1_new_rent_effective_date").setText(date);
+    form.getTextField("n1_rent_difference_in_dollars").setText(dollarsIncrease);
+    form.getTextField("n1_rent_increase_as_percentage").setText(percentIncrease);
 
     const filledBytes = await pdfDoc.save();
     const blob = new Blob([filledBytes], { type: "application/pdf" });
@@ -217,7 +229,7 @@ guidelineRadios.forEach(radio => {
  <script>
 // --- Simple local save/restore system (fixed and complete) ---
 
-const fieldIDs = ["landlordAddress", "tenantAddress", "unitAddress", "tenantRent", "dateEffective"];
+const fieldIDs = ["landlordAddress", "tenantAddress", "unitAddress", "tenantRent", "dateEffective", "increaseDollars", "increasePercent"];
 
 // restore saved values when page loads
 window.addEventListener("load", () => {
