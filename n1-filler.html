@@ -11,7 +11,7 @@
 
   <h2>Time to increase the rent on your property? </h2> 
     <p>Answer these simple questions to download your filled out <em>N1 Form</em> as a PDF that's ready to send to your tenant:</p>
-    <p>1.1</p>
+    <p>1.11</p>
   
     <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
     <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
@@ -67,16 +67,16 @@
   <legend>Rent Increase compared to guidelines:</legend>
 
   <label>
-    <input type="radio" name="rentGuidelines" value="less_or_equal" checked>
+    <input type="radio" name="rentGuidelines" value="n1_less_than_guidelines" checked>
     Less than or equal to Guidelines
   </label><br>
 
   <label>
-    <input type="radio" name="rentGuidelines" value="more_than">
+    <input type="radio" name="rentGuidelines" value="n1_more_than_guidelines">
     More than the Guidelines
   </label>
-    <label><input id="rentApproved" type="radio" name="approvedOrApplied" value="rent_approved" disabled>Approved.</label>
-    <label><input id="rentApplied" type="radio" name="approvedOrApplied" value="rent_applied_for" disabled>Applied for.</label>
+    <label><input id="rentApproved" type="radio" name="approvedOrApplied" value="n1_has_been_approved" disabled>Approved.</label>
+    <label><input id="rentApplied" type="radio" name="approvedOrApplied" value="n1_must_be_approved" disabled>Applied for.</label>
 
 
 </fieldset>
@@ -120,7 +120,7 @@
 
 rentGuidelineRadios.forEach(radio => {
   radio.addEventListener("change", () => {
-    if (radio.value === "more_than" && radio.checked) {
+    if (radio.value === "n1_more_than_guidelines" && radio.checked) {
       approvedRadios.forEach(r => (r.disabled = false));
     } else {
       approvedRadios.forEach(r => {
@@ -152,7 +152,7 @@ const subRadios = document.querySelectorAll('input[name="approvedOrApplied"]');
 
 guidelineRadios.forEach(radio => {
   radio.addEventListener("change", () => {
-    const isMoreThan = radio.value === "more_than" && radio.checked;
+    const isMoreThan = radio.value === "n1_more_than_guidelines" && radio.checked;
     subRadios.forEach(sub => {
       sub.disabled = !isMoreThan;
       if (!isMoreThan) sub.checked = false;
@@ -187,12 +187,12 @@ guidelineRadios.forEach(radio => {
 
     
     const rentGuidelines = document.querySelector('input[name="rentGuidelines"]:checked').value;
-    const rentGuideGroup = form.getRadioGroup("rent_guidelines");
+    const rentGuideGroup = form.getRadioGroup("n1_less_or_more_than_guidelines");
     rentGuideGroup.select(rentGuidelines);
     const approvedOrApplied = document.querySelector('input[name="approvedOrApplied"]:checked')?.value;
 
-    if (rentGuidelines === "more_than" && approvedOrApplied) {
-      const rentApprovedApplied = form.getRadioGroup("approved_or_applied");
+    if (rentGuidelines === "n1_more_than_guidelines" && approvedOrApplied) {
+      const rentApprovedApplied = form.getRadioGroup("n1_has_been_or_must_be_approved");
       rentApprovedApplied.select(approvedOrApplied);
     }
 
