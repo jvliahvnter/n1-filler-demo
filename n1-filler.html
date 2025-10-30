@@ -11,7 +11,7 @@
 
   <h2>Time to increase the rent on your property? </h2> 
     <p>Answer these simple questions to download your filled out <em>N1 Form</em> as a PDF that's ready to send to your tenant:</p>
-    <p>1.</p>
+    <p>1.1</p>
   
     <label for="tenantAddress">Tenant's name (as it appears on your lease) and address:</label>
     <textarea id="tenantAddress" rows="3" placeholder="Christine Smith&#10;4-123 Maple St.&#10;Toronto ON M4M 4M4" style="width:300px;"></textarea>
@@ -115,8 +115,8 @@
   const radios = document.querySelectorAll('input[name="rentFrequency"]');
   const otherInput = document.getElementById("rentFrequencyOther");
 
-const rentGuidelineRadios = document.querySelectorAll('input[name="rentGuidelines"]');
-const approvedRadios = document.querySelectorAll('input[name="approvedOrApplied"]');
+  const rentGuidelineRadios = document.querySelectorAll('input[name="rentGuidelines"]');
+  const approvedRadios = document.querySelectorAll('input[name="approvedOrApplied"]');
 
 rentGuidelineRadios.forEach(radio => {
   radio.addEventListener("change", () => {
@@ -182,7 +182,7 @@ guidelineRadios.forEach(radio => {
       : "";
 
     const rentFrequency = document.querySelector('input[name="rentFrequency"]:checked').value;
-    const rentFreqGroup = form.getRadioGroup("rent_frequency");
+    const rentFreqGroup = form.getRadioGroup("n1_rent_per");
     rentFreqGroup.select(rentFrequency);
 
     
@@ -198,9 +198,9 @@ guidelineRadios.forEach(radio => {
 
 
 
-    if (rentFrequency === "Other") {
-      form.getTextField("rent_frequency_other").setText(otherInput.value || "");
-    }
+  if (rentFrequency === "Other") {
+    form.getTextField("n1_per_other_detail").setText(otherInput.value || "");
+  }
 
     form.getTextField("n1_landlord_name_and_address").setText(addressLandlord);
     form.getTextField("n1_tenant_name_and_address").setText(addressTenant);
